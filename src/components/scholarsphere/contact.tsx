@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -17,31 +16,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Send } from "lucide-react";
-
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  message: z.string().min(10, {
-    message: "Message must be at least 10 characters.",
-  }),
-});
-
-async function submitContactForm(data: z.infer<typeof formSchema>) {
-  "use server";
-  console.log("Contact form submitted:", data);
-  // In a real application, you would save this to Firestore.
-  // Example: await db.collection('contacts').add({ ...data, timestamp: new Date() });
-  return { success: true, message: "Thank you for your message! We'll get back to you soon." };
-}
+import { contactFormSchema, type ContactFormData } from "@/lib/schemas";
+import { submitContactForm } from "@/app/actions/contact";
 
 export function Contact() {
   const { toast } = useToast();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<ContactFormData>({
+    resolver: zodResolver(contactFormSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -49,7 +30,7 @@ export function Contact() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: ContactFormData) {
     const result = await submitContactForm(values);
     if (result.success) {
       toast({
