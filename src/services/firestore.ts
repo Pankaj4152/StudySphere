@@ -1,5 +1,6 @@
+
 import { db } from "@/lib/firebase";
-import { collection, getDocs, addDoc, serverTimestamp, DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
+import { collection, getDocs, addDoc, serverTimestamp, DocumentData, QueryDocumentSnapshot, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import type { Resource, Syllabus, Comment } from "@/lib/data";
 import type { ResourceFormData } from "@/lib/schemas";
 
@@ -39,7 +40,11 @@ export async function getResources(): Promise<Resource[]> {
                 comments,
             } as Resource;
         });
-        return resources;
+        // Sort by creation date, newest first
+        return resources.sort((a, b) => {
+            if (!a.createdAt || !b.createdAt) return 0;
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        });
     } catch (error) {
         console.error("Error fetching resources, you might need to configure Firestore and add data.", error);
         return [];
@@ -74,5 +79,29 @@ export async function addResource(data: ResourceFormData): Promise<{ success: bo
     } catch (error) {
         console.error("Error adding resource: ", error);
         return { success: false, message: "Failed to add resource." };
+    }
+}
+
+export async function updateResource(id: string, data: ResourceFormData): Promise<{ success: boolean; message: string }> {
+    try {
+        const resourceRef = doc(db, "resources", id);
+        await updateDoc(resourceRef, {
+            ...data,
+        });
+        return { success: true, message: "Resource updated successfully!" };
+    } catch (error) {
+        console.error("Error updating resource: ", error);
+        return { success: false, message: "Failed to update resource." };
+    }
+}
+
+export async function deleteResource(id: string): Promise<{ success: boolean; message: string }> {
+    try {
+        const resourceRef = doc(db, "resources", id);
+        await deleteDoc(resourceRef);
+        return { success: true, message: "Resource deleted successfully!" };
+    } catch (error) {
+        console.error("Error deleting resource: ", error);
+        return { success: false, message: "Failed to delete resource." };
     }
 }

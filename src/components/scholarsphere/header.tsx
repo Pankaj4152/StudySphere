@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -35,9 +36,6 @@ export function Header() {
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-2">
            <Button variant="ghost" className="text-muted-foreground transition-colors hover:text-foreground">About</Button>
-           <Button variant="outline" asChild>
-             <Link href="/admin">Admin</Link>
-           </Button>
           <ThemeToggle />
         </div>
       </div>

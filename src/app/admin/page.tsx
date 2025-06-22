@@ -1,7 +1,9 @@
+
 import { getResources } from "@/services/firestore";
 import { Header } from "@/components/scholarsphere/header";
 import { AddResourceDialog } from "./add-resource-dialog";
 import { ResourceTable } from "./resource-table";
+import { LogoutButton } from "./logout-button";
 
 export default async function AdminPage() {
   const resources = await getResources();
@@ -11,8 +13,14 @@ export default async function AdminPage() {
       <Header />
       <div className="container mx-auto py-10">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold font-headline">Admin Dashboard</h1>
-          <AddResourceDialog />
+            <div className="space-y-1">
+                <h1 className="text-3xl font-bold font-headline">Admin Dashboard</h1>
+                <p className="text-muted-foreground">Manage your educational resources.</p>
+            </div>
+          <div className="flex items-center gap-4">
+            <AddResourceDialog />
+            <LogoutButton />
+          </div>
         </div>
         <h2 className="text-2xl font-bold font-headline">Manage Resources</h2>
         {resources.length > 0 ? (

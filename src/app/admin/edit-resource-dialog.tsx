@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, PlusCircle, Save } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -29,38 +28,56 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
-import { addResourceAction } from "./actions";
-import { branches, resourceTypes } from "@/lib/data";
+import { updateResourceAction } from "./actions";
+import { branches, resourceTypes, type Resource } from "@/lib/data";
 import { resourceFormSchema, type ResourceFormData } from "@/lib/schemas";
 
-export function AddResourceDialog() {
+interface EditResourceDialogProps {
+    resource: Resource;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}
+
+export function EditResourceDialog({ resource, open, onOpenChange }: EditResourceDialogProps) {
   const { toast } = useToast();
-  const [open, setOpen] = useState(false);
   const form = useForm<ResourceFormData>({
     resolver: zodResolver(resourceFormSchema),
     defaultValues: {
-      title: "",
-      subject: "",
-      desc: "",
-      year: undefined,
-      semester: undefined,
-      branch: undefined,
-      type: undefined,
-      file_url: "",
+      title: resource.title,
+      subject: resource.subject,
+      desc: resource.desc,
+      year: resource.year,
+      semester: resource.semester,
+      branch: resource.branch,
+      type: resource.type,
+      file_url: resource.file_url,
     },
   });
+
+  useEffect(() => {
+    form.reset({
+      title: resource.title,
+      subject: resource.subject,
+      desc: resource.desc,
+      year: resource.year,
+      semester: resource.semester,
+      branch: resource.branch,
+      type: resource.type,
+      file_url: resource.file_url,
+    });
+  }, [resource, form]);
+
 
   const { isSubmitting } = form.formState;
 
   async function onSubmit(values: ResourceFormData) {
-    const result = await addResourceAction(values);
+    const result = await updateResourceAction(resource.id, values);
     if (result.success) {
       toast({
         title: "Success!",
         description: result.message,
       });
-      form.reset();
-      setOpen(false);
+      onOpenChange(false);
     } else {
       toast({
         variant: "destructive",
@@ -71,18 +88,12 @@ export function AddResourceDialog() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => { setOpen(isOpen); if (!isOpen) form.reset(); }}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add New Resource
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
-          <DialogTitle>Add New Resource</DialogTitle>
+          <DialogTitle>Edit Resource</DialogTitle>
           <DialogDescription>
-            Fill in the details of the new resource. Click save when you're done.
+            Make changes to the resource details. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -112,7 +123,7 @@ export function AddResourceDialog() {
               <FormField control={form.control} name="year" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Year</FormLabel>
-                  <Select onValueChange={(val) => field.onChange(Number(val))} value={field.value ? String(field.value) : ""}>
+                  <Select onValueChange={(val) => field.onChange(Number(val))} value={String(field.value)}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select year" /></SelectTrigger></FormControl>
                     <SelectContent>{["1", "2", "3", "4"].map(y => <SelectItem key={y} value={y}>Year {y}</SelectItem>)}</SelectContent>
                   </Select>
@@ -122,7 +133,7 @@ export function AddResourceDialog() {
               <FormField control={form.control} name="semester" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Semester</FormLabel>
-                  <Select onValueChange={(val) => field.onChange(Number(val))} value={field.value ? String(field.value) : ""}>
+                   <Select onValueChange={(val) => field.onChange(Number(val))} value={String(field.value)}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select semester" /></SelectTrigger></FormControl>
                     <SelectContent>{["1", "2", "3", "4", "5", "6", "7", "8"].map(s => <SelectItem key={s} value={s}>Semester {s}</SelectItem>)}</SelectContent>
                   </Select>
@@ -162,7 +173,7 @@ export function AddResourceDialog() {
             <DialogFooter className="pt-4">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                Save Resource
+                Save Changes
               </Button>
             </DialogFooter>
           </form>
