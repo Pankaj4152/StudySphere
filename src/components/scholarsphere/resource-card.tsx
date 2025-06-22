@@ -26,7 +26,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useEffect } from "react";
 import { analyzeCommentSentiment } from "@/ai/flows/analyze-comment-sentiment";
 import { useToast } from "@/hooks/use-toast";
 
@@ -50,6 +50,12 @@ const sentimentColors: { [key: string]: string } = {
 
 function Comment({ comment }: { comment: CommentType }) {
   const SentimentIcon = sentimentIcons[comment.sentiment] || Meh;
+  const [formattedDate, setFormattedDate] = useState("");
+
+  useEffect(() => {
+    setFormattedDate(new Date(comment.timestamp).toLocaleString());
+  }, [comment.timestamp]);
+
   return (
     <div className="flex items-start gap-3">
       <Avatar className="h-8 w-8">
@@ -69,7 +75,7 @@ function Comment({ comment }: { comment: CommentType }) {
         </div>
         <p className="text-sm text-muted-foreground">{comment.comment}</p>
         <p className="text-xs text-muted-foreground/70 mt-1">
-          {new Date(comment.timestamp).toLocaleString()}
+          {formattedDate}
         </p>
       </div>
     </div>
