@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { ResourceCard } from "./resource-card";
-import { mockResources, branches, resourceTypes } from "@/lib/data";
+import { branches, resourceTypes } from "@/lib/data";
 import type { Resource } from "@/lib/data";
 import {
   Select,
@@ -27,7 +27,7 @@ const AdPlaceholder = ({ className }: { className?: string }) => (
 );
 
 
-export function Resources() {
+export function Resources({ resources }: { resources: Resource[] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedYear, setSelectedYear] = useState("All");
   const [selectedSemester, setSelectedSemester] = useState("All");
@@ -35,7 +35,7 @@ export function Resources() {
   const [selectedType, setSelectedType] = useState("All");
 
   const filteredResources = useMemo(() => {
-    return mockResources.filter((resource: Resource) => {
+    return resources.filter((resource: Resource) => {
       const searchMatch =
         searchTerm === "" ||
         resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -49,7 +49,7 @@ export function Resources() {
 
       return searchMatch && yearMatch && semesterMatch && branchMatch && typeMatch;
     });
-  }, [searchTerm, selectedYear, selectedSemester, selectedBranch, selectedType]);
+  }, [resources, searchTerm, selectedYear, selectedSemester, selectedBranch, selectedType]);
 
   return (
     <section id="resources" className="w-full py-12 md:py-24 lg:py-32">
@@ -105,7 +105,7 @@ export function Resources() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <p className="text-xl text-muted-foreground">No resources found. Try adjusting your filters.</p>
+            <p className="text-xl text-muted-foreground">No resources found. Try adjusting your filters or adding new ones in the admin panel.</p>
           </div>
         )}
 

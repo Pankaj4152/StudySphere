@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { mockSyllabus, branches, Syllabus as SyllabusType } from "@/lib/data";
+import { branches, Syllabus as SyllabusType } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Download } from "lucide-react";
 import { Button } from "../ui/button";
@@ -49,7 +49,7 @@ function SyllabusTable({ syllabus }: { syllabus: SyllabusType[] }) {
   );
 }
 
-export function Syllabus() {
+export function Syllabus({ syllabus }: { syllabus: SyllabusType[] }) {
   return (
     <section id="syllabus" className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
       <div className="container px-4 md:px-6">
@@ -78,7 +78,7 @@ export function Syllabus() {
           {branches.map((branch) => (
             <TabsContent key={branch} value={branch} className="mt-6">
               <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm">
-                 <SyllabusTable syllabus={mockSyllabus.filter(s => s.branch === branch)} />
+                 <SyllabusTable syllabus={syllabus.filter(s => s.branch === branch)} />
               </div>
             </TabsContent>
           ))}
