@@ -18,6 +18,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  output: 'standalone',
+  experimental: {
+    outputFileTracingIncludes: {
+      '/': ['./public/**/*'],
+    },
+  },
 };
 
 export default nextConfig;
